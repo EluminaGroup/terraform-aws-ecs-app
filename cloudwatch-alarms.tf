@@ -17,24 +17,6 @@ resource "aws_cloudwatch_metric_alarm" "min_healthy_tasks" {
     label       = "HealthyHostCountCombined"
     return_data = "true"
   }
-
-  metric_query {
-    id = "m1"
-
-    metric {
-      metric_name = "HealthyHostCount"
-      namespace   = "AWS/ApplicationELB"
-      period      = "60"
-      stat        = "Maximum"
-      unit        = "Count"
-
-      dimensions = {
-        LoadBalancer = join("/", slice(split("/", data.aws_lb_listener.ecs.load_balancer_arn), 1, 4))
-        TargetGroup  = aws_lb_target_group.blue.arn_suffix
-      }
-    }
-  }
-
   metric_query {
     id = "m2"
 

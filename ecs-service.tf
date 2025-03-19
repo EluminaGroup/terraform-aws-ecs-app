@@ -39,10 +39,6 @@ resource "aws_ecs_service" "default" {
     container_port   = var.container_port
   }
 
-  deployment_controller {
-    type = var.deployment_controller # default "CODE_DEPLOY"
-  }
-
   dynamic "capacity_provider_strategy" {
     iterator = capacity_provider_strategy
 
@@ -59,7 +55,6 @@ resource "aws_ecs_service" "default" {
   }
 
   depends_on = [
-    aws_lb_listener_rule.green,
-    aws_lb_listener_rule.blue
+    aws_lb_listener_rule.green
   ]
 }
