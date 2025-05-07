@@ -476,3 +476,13 @@ variable "ecs_service_capacity_provider_strategy" {
   description = "(Optional) The capacity provider strategy to use for the service. Can be one or more. These can be updated without destroying and recreating the service only if set to [] and not changing from 0 capacity_provider_strategy blocks to greater than 0, or vice versa."
   default     = [{}]
 }
+
+variable "extra_hostnames" {
+  default     = []
+  description = "List of hostnames to create listerner rule and optionally, DNS records for this app"
+}
+
+variable "extra_alb_priority" {
+  default     = 0
+  description = "priority rules ALB (leave 0 to let terraform calculate)"
+}

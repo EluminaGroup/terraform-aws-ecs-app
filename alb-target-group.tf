@@ -92,6 +92,100 @@ resource "aws_lb_listener_rule" "blue" {
   priority = var.alb_priority != 0 ? var.alb_priority + 1 : null
 }
 
+resource "aws_lb_listener_rule" "extra_green" {
+  listener_arn = var.alb_listener_https_arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.green.arn
+  }
+
+  dynamic "condition" {
+    for_each = length(var.paths) > 0 ? [var.paths] : []
+    content {
+      path_pattern {
+        values = toset(condition.value)
+      }
+    }
+  }
+
+  dynamic "condition" {
+    for_each = length(var.extra_hostname) > 0 ? [var.extra_hostname] : []
+    content {
+      host_header {
+        values = toset(condition.value)
+      }
+    }
+  }
+
+  dynamic "condition" {
+    for_each = length(var.source_ips) > 0 ? [var.source_ips] : []
+    content {
+      source_ip {
+        values = toset(condition.value)
+      }
+    }
+  }
+
+  dynamic "condition" {
+    for_each = var.http_header
+    content {
+      http_header {
+        http_header_name = condition.value.name
+        values           = condition.value.values
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      action[0].target_group_arn
+    ]
+  }
+
+  priority = try(
+    aws_lb_listener_rule.path_redirects[length(aws_lb_listener_rule.path_redirects) - 1].priority + 1,
+    try(
+      aws_lb_listener_rule.green_auth_oidc[0].priority + 1, var.extra_alb_priority != 0 ? var.extra_alb_priority : null
+    )
+  )
+}
+
+resource "aws_lb_listener_rule" "extra_blue" {
+  listener_arn = var.test_traffic_route_listener_arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.blue.arn
+  }
+
+  dynamic "condition" {
+    for_each = length(var.paths) > 0 ? [var.paths] : []
+    content {
+      path_pattern {
+        values = toset(condition.value)
+      }
+    }
+  }
+
+  dynamic "condition" {
+    for_each = length(var.extra_hostname) > 0 ? [var.extra_hostname] : []
+    content {
+      host_header {
+        values = toset(condition.value)
+      }
+    }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      action[0].target_group_arn
+    ]
+  }
+
+  priority = var.extra_alb_priority != 0 ? var.extra_alb_priority + 1 : null
+}
+
 resource "aws_lb_listener_rule" "redirects" {
   count        = length(compact(split(",", var.hostname_redirects)))
   listener_arn = var.alb_listener_https_arn

@@ -60,6 +60,8 @@ resource "aws_ecs_service" "default" {
 
   depends_on = [
     aws_lb_listener_rule.green,
-    aws_lb_listener_rule.blue
+    aws_lb_listener_rule.blue,
+    aws_lb_listener_rule.extra_green,
+    aws_lb_listener_rule.extra_blue
   ]
 }
