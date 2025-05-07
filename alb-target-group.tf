@@ -93,7 +93,7 @@ resource "aws_lb_listener_rule" "blue" {
 }
 
 resource "aws_lb_listener_rule" "extra_green" {
-  count = length(var.extra_hostnames) && var.extra_alb_priority != 0
+  count = length(var.extra_hostnames) != 0 && var.extra_alb_priority != 0 ? 1 : 0
   listener_arn = var.alb_listener_https_arn
 
   action {
@@ -153,7 +153,7 @@ resource "aws_lb_listener_rule" "extra_green" {
 }
 
 resource "aws_lb_listener_rule" "extra_blue" {
-  count = length(var.extra_hostnames) && var.extra_alb_priority != 0
+  count = length(var.extra_hostnames) != 0 && var.extra_alb_priority != 0 ? 1 : 0
   listener_arn = var.test_traffic_route_listener_arn
 
   action {
