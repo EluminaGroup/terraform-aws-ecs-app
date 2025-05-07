@@ -93,6 +93,7 @@ resource "aws_lb_listener_rule" "blue" {
 }
 
 resource "aws_lb_listener_rule" "extra_green" {
+  count = length(var.extra_hostnames) && var.extra_alb_priority != 0
   listener_arn = var.alb_listener_https_arn
 
   action {
@@ -110,7 +111,7 @@ resource "aws_lb_listener_rule" "extra_green" {
   }
 
   dynamic "condition" {
-    for_each = length(var.extra_hostname) > 0 ? [var.extra_hostname] : []
+    for_each = length(var.extra_hostnames) > 0 ? [var.extra_hostnames] : []
     content {
       host_header {
         values = toset(condition.value)
@@ -152,6 +153,7 @@ resource "aws_lb_listener_rule" "extra_green" {
 }
 
 resource "aws_lb_listener_rule" "extra_blue" {
+  count = length(var.extra_hostnames) && var.extra_alb_priority != 0
   listener_arn = var.test_traffic_route_listener_arn
 
   action {
@@ -169,7 +171,7 @@ resource "aws_lb_listener_rule" "extra_blue" {
   }
 
   dynamic "condition" {
-    for_each = length(var.extra_hostname) > 0 ? [var.extra_hostname] : []
+    for_each = length(var.extra_hostnames) > 0 ? [var.extra_hostnames] : []
     content {
       host_header {
         values = toset(condition.value)
